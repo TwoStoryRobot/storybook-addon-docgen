@@ -1,0 +1,19 @@
+{
+  "name": "@twostoryrobot/storybook-addon-docgen",
+  "version": "0.0.1",
+  "description": "Generates documentation using react-docgen",
+  "main": "register.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TwoStoryRobot/storybook-addon-docgen.git"
+  },
+  "author": "Chad Fawcett <me@chadf.ca>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TwoStoryRobot/storybook-addon-docgen/issues"
+  },
+  "homepage": "https://github.com/TwoStoryRobot/storybook-addon-docgen#readme"
+}
