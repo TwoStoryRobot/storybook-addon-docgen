@@ -5,6 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "babel ./src --out-dir ./dist",
+    "prettier": "prettier --write '**/*.js'",
+    "precommit": "prettier --list-different '**/*.js'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,7 +24,6 @@
     "@storybook/addons": "^3.3.10"
   },
   "devDependencies": {
-    "@twostoryrobot/eslint": "^1.0.0",
     "@twostoryrobot/prettier": "^1.0.0",
     "babel-cli": "^6.26.0",
     "babel-plugin-transform-runtime": "^6.23.0",
@@ -30,6 +31,7 @@
     "babel-preset-react": "^6.24.1",
     "eslint": "^4.16.0",
     "eslint-plugin-jest": "^21.7.0",
+    "husky": "^0.14.3",
     "prettier": "^1.10.2"
   }
 }
