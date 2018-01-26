@@ -10,6 +10,10 @@ const buttonStyle = {
   color: '#FFFFFF'
 }
 
+/**
+ * This button is pretty neat, it has a default emoji if you don't provide a
+ * children prop.
+ */
 const Button = ({ children, ...rest }) => (
   <button style={buttonStyle} {...rest}>
     {children}
