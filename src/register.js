@@ -1,10 +1,14 @@
 import React from 'react'
 import addons from '@storybook/addons'
+import Markdown from 'react-markdown'
+import generateMarkdown from './generateMarkdown'
+
+import './index.css'
 
 class DocgenPanel extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { docgenInfo: {} }
+    this.state = { docgenInfo: null }
     this.onAddDocs = this.onAddDocs.bind(this)
   }
 
@@ -20,7 +24,7 @@ class DocgenPanel extends React.Component {
 
     //  Clear the current docs on every story change
     this.stopListeningOnStory = api.onStory(() => {
-      this.onAddDocs({})
+      this.onAddDocs(null)
     })
   }
 
@@ -33,14 +37,19 @@ class DocgenPanel extends React.Component {
 
   render() {
     const { docgenInfo } = this.state
-    const docs = JSON.stringify(docgenInfo)
 
-    //  TODO: This needs to take the docgenInfo and render it all pretty like 💅
-    return (
-      <div>
-        <div dangerouslySetInnerHTML={{ __html: docs }} />
-      </div>
-    )
+    if (docgenInfo) {
+      return (
+        <div>
+          <Markdown
+            className="storybook-addon-docgen"
+            source={generateMarkdown(docgenInfo)}
+          />
+        </div>
+      )
+    } else {
+      return <p>Loading...</p>
+    }
   }
 }
 

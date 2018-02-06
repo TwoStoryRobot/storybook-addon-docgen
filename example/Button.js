@@ -20,6 +20,8 @@ const Button = ({ children, ...rest }) => (
   </button>
 )
 
+Button.displayName = 'Button'
+
 Button.defaultProps = {
   children: '🤷‍♀️'
 }
