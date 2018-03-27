@@ -27,6 +27,7 @@ Button.defaultProps = {
 }
 
 Button.propTypes = {
+  /** The content of the button */
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node
