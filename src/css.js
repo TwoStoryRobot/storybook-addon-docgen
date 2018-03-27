@@ -1,3 +1,4 @@
+export default `
 .storybook-addon-docgen {
   padding: 0 1em;
 }
@@ -11,3 +12,4 @@
 .storybook-addon-docgen tr:nth-child(even) {
   background-color: #F6F8FA;
 }
+`

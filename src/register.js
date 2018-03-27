@@ -3,7 +3,11 @@ import addons from '@storybook/addons'
 import Markdown from 'react-markdown'
 import generateMarkdown from './generateMarkdown'
 
-import './index.css'
+import styles from './css'
+
+const style = document.createElement('style')
+style.innerHTML = styles
+document.body.appendChild(style)
 
 class DocgenPanel extends React.Component {
   constructor(props) {
