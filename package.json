@@ -1,6 +1,6 @@
 {
   "name": "@twostoryrobot/storybook-addon-docgen",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Generates documentation using react-docgen",
   "main": "dist/index.js",
   "scripts": {
