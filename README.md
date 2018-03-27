@@ -1,3 +1,7 @@
+
+[![Build Status](https://semaphoreci.com/api/v1/twostoryrobot/storybook-addon-docgen/branches/master/shields_badge.svg)](https://semaphoreci.com/twostoryrobot/storybook-addon-docgen)
+[![npm (scoped)](https://img.shields.io/npm/v/@twostoryrobot/storybook-addon-docgen.svg)](https://www.npmjs.com/package/@twostoryrobot/storybook-addon-docgen)
+
 # storybook-addon-docgen
 
 Generates documentation using react-docgen
