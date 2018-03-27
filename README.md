@@ -16,11 +16,19 @@ npm run storybook
 
 ## Usage
 
+Add the addon to your `.storybook/addons.js`
+
+```javascript
+import '@twostoryrobot/storybook-addon-docgen/register'
+```
+
 Add the `docgen` decorator to your stories. You must supply the component you
 want the documentation from. In this case we want to docs supplied from the
 Button component.
 
 ```jsx
+import docgen from '@twostoryrobot/storybook-addon-docgen'
+
 storiesOf('Button', module)
   .addDecorator(docgen(Button))
   .add('with text', () => (
