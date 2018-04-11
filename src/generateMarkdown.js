@@ -31,13 +31,16 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+const isObject = value =>
+  value && typeof value === 'object' && value.constructor === Object
+
 const generateTitle = name => '`' + name + '`' + '\n===\n'
 
 const generateDescription = description => description + '\n'
 
 const generatePropType = type =>
   type.name +
-  (type.value
+  (type.value && type.name !== 'shape'
     ? Array.isArray(type.value)
       ? `(${type.value.map(v => v.name || v.value).join('&#124;')})`
       : type.value
@@ -45,14 +48,37 @@ const generatePropType = type =>
 
 const generatePropDefaultValue = value => `\`${value.value}\``
 
-const generateProp = (propName, prop) =>
-  [
+const generateProp = (propName, prop) => {
+  const row = [
     '`' + propName + '`',
     prop.type ? generatePropType(prop.type) : '',
     prop.required ? 'yes' : 'no',
     prop.defaultValue ? generatePropDefaultValue(prop.defaultValue) : '',
     prop.description ? prop.description : ''
   ].join('|')
+
+  const { type } = prop
+
+  if (type && type.value && isObject(type.value)) {
+    return (
+      row +
+      '\n' +
+      Object.keys(type.value)
+        .sort()
+        .map(name =>
+          generateProp(`${propName}/${name}`, {
+            type: {
+              name: type.value[name].name
+            },
+            required: type.value[name].required
+          })
+        )
+        .join('\n')
+    )
+  }
+
+  return row
+}
 
 const generateProps = props => {
   const title =
