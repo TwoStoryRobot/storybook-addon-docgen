@@ -49,13 +49,16 @@ const generatePropType = type =>
 const generatePropDefaultValue = value => `\`${value.value}\``
 
 const generateProp = (propName, prop) => {
-  const row = [
-    '`' + propName + '`',
-    prop.type ? generatePropType(prop.type) : '',
-    prop.required ? 'yes' : 'no',
-    prop.defaultValue ? generatePropDefaultValue(prop.defaultValue) : '',
-    prop.description ? prop.description : ''
-  ].join('|')
+  const row =
+    '|' +
+    [
+      '`' + propName + '`',
+      prop.type ? generatePropType(prop.type) : '',
+      prop.required ? 'yes' : 'no',
+      prop.defaultValue ? generatePropDefaultValue(prop.defaultValue) : '',
+      prop.description ? prop.description : ''
+    ].join('|') +
+    '|'
 
   const { type } = prop
 
