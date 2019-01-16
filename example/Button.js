@@ -29,9 +29,21 @@ Button.defaultProps = {
 Button.propTypes = {
   /** The content of the button */
   children: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.node),
-    PropTypes.node
+    PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.bool, PropTypes.func])),
+    PropTypes.arrayOf(PropTypes.string.isRequired)
   ])
+
+  // quantity: PropTypes.number.isRequired,
+
+  // testArray: PropTypes.arrayOf(
+  //   PropTypes.oneOfType([
+  //     PropTypes.shape({
+  //       code: PropTypes.string.isRequired,
+  //       id: PropTypes.number
+  //     }),
+  //     PropTypes.number.isRequired
+  //   ])
+  // )
 }
 
 export default Button

@@ -38,17 +38,27 @@ const generateTitle = name => '`' + name + '`' + '\n===\n'
 
 const generateDescription = description => description + '\n'
 
-const generatePropType = type =>
-  type.name +
-  (type.value && type.name !== 'shape'
-    ? Array.isArray(type.value)
-      ? `(${type.value.map(v => v.name || v.value).join('&#124;')})`
-      : type.value
-    : '')
+const generatePropType = type => {
+  console.log('GENERATE PROP TYPE')
+  console.log(type)
+
+  if (Array.isArray(type.name)) {
+    return `${type.name.map(v => v.name || v.value).join(' &#124; ')}`
+  } else {
+    return (
+      type.name +
+      (type.value && type.name !== 'shape'
+        ? Array.isArray(type.value)
+          ? `(${type.value.map(v => v.name || v.value).join(' &#124; ')})`
+          : ' ' //+ type.value.name || type.value // type.value might not be necessary
+        : '')
+    )
+  }
+}
 
 const generatePropDefaultValue = value => `\`${value.value}\``
 
-const generateProp = (propName, prop) => {
+const generateProp = (propName, prop, unvisitedNodes) => {
   const row =
     '|' +
     [
@@ -63,21 +73,65 @@ const generateProp = (propName, prop) => {
   const { type } = prop
 
   if (type && type.value && isObject(type.value)) {
+    let keys = Object.keys(type.value)
+    console.log('KEYS')
+    console.log(keys)
+    let names = []
+    keys.forEach(key =>
+      names.push(type[key].name !== undefined ? type[key].name : type[key])
+    )
+
+    // ['a', 'b', 'c'] -> ['a', 'a/b', 'a/b/c']
+    let namesAccumulated = names.reduce(
+      (a, x, i) => [...a, `${a[i - 1] ? a[i - 1] + '/' : ''}${x}`],
+      []
+    )
+
+    console.log('TYPE.VALUE')
+    console.log(type.value)
+
     return (
       row +
       '\n' +
-      Object.keys(type.value)
+      keys
         .sort()
-        .map(name =>
-          generateProp(`${propName}/${name}`, {
+        .map((key, index) =>
+          generateProp(`${propName}/${namesAccumulated[index]}`, {
             type: {
-              name: type.value[name].name
+              name: type.value[key]
             },
-            required: type.value[name].required
+            required: type.value[key].required
           })
         )
         .join('\n')
     )
+  } else if (Array.isArray(type.value) || Array.isArray(type.name)) {
+    // PropTypes.oneOf and PropTypes.oneOfType are represented as an array
+    let unvisitedNodes = Object.create(type.value || type.name)
+    unvisitedNodes = unvisitedNodes.filter(node => node.value !== undefined) // only add nodes that have a value property (i.e further nesting)
+
+    let currentNode = unvisitedNodes.pop()
+    console.log('UNVISITED NODES')
+    console.log(unvisitedNodes)
+    console.log('CURRENT NODE')
+    console.log(currentNode)
+
+    return (
+      row +
+      '\n' +
+      generateProp(
+        `${propName}/${currentNode.name}`,
+        {
+          type: {
+            name: currentNode.value.name
+          },
+          required:
+            currentNode.required !== undefined ? current.required : false //currentNode[key].required
+        },
+        unvisitedNodes
+      )
+    )
+  } else {
   }
 
   return row

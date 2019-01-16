@@ -2,3 +2,5 @@
 .prettierrc
 .eslintrc.js
 /node_modules
+.history
+.DS_Store

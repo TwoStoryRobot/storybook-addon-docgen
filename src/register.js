@@ -17,6 +17,7 @@ class DocgenPanel extends React.Component {
   }
 
   onAddDocs(docgenInfo) {
+    console.log(docgenInfo)
     this.setState({ docgenInfo })
   }
 
