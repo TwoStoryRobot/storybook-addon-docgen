@@ -58,7 +58,7 @@ const generatePropType = type => {
 
 const generatePropDefaultValue = value => `\`${value.value}\``
 
-const generateProp = (propName, prop, unvisitedNodes) => {
+const generateProp = (propName, prop, unvisitedNodes = []) => {
   const row =
     '|' +
     [
@@ -105,10 +105,12 @@ const generateProp = (propName, prop, unvisitedNodes) => {
         )
         .join('\n')
     )
-  } else if (Array.isArray(type.value) || Array.isArray(type.name)) {
     // PropTypes.oneOf and PropTypes.oneOfType are represented as an array
-    let unvisitedNodes = Object.create(type.value || type.name)
-    unvisitedNodes = unvisitedNodes.filter(node => node.value !== undefined) // only add nodes that have a value property (i.e further nesting)
+  } else if (Array.isArray(type.value) || Array.isArray(type.name)) {
+    let newNodes = Object.create(type.value || type.name)
+    newNodes = newNodes.filter(node => node.value !== undefined) // only add nodes that have a value property (i.e further nesting)
+
+    unvisitedNodes = [...unvisitedNodes, ...newNodes]
 
     let currentNode = unvisitedNodes.pop()
     console.log('UNVISITED NODES')
@@ -120,7 +122,7 @@ const generateProp = (propName, prop, unvisitedNodes) => {
       row +
       '\n' +
       generateProp(
-        `${propName}/${currentNode.name}`,
+        `${propName}/${currentNode.name} abc`,
         {
           type: {
             name: currentNode.value.name
