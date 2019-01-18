@@ -22,28 +22,30 @@ const Button = ({ children, ...rest }) => (
 
 Button.displayName = 'Button'
 
-Button.defaultProps = {
-  children: '🤷‍♀️'
-}
+// Button.defaultProps = {
+//   children: '🤷‍♀️'
+// }
 
 Button.propTypes = {
   /** The content of the button */
   children: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.bool, PropTypes.func])),
-    PropTypes.arrayOf(PropTypes.string.isRequired)
-  ])
+    PropTypes.arrayOf(PropTypes.string.isRequired),
+    PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.bool, PropTypes.func]))
+  ]),
 
-  // quantity: PropTypes.number.isRequired,
+  quantity: PropTypes.number.isRequired,
 
-  // testArray: PropTypes.arrayOf(
-  //   PropTypes.oneOfType([
-  //     PropTypes.shape({
-  //       code: PropTypes.string.isRequired,
-  //       id: PropTypes.number
-  //     }),
-  //     PropTypes.number.isRequired
-  //   ])
-  // )
+  testArray: PropTypes.arrayOf(
+    PropTypes.oneOfType([
+      PropTypes.shape({
+        code: PropTypes.string.isRequired,
+        id: PropTypes.number,
+        age: PropTypes.number
+      }),
+      PropTypes.number.isRequired,
+      PropTypes.string
+    ])
+  )
 }
 
 export default Button
