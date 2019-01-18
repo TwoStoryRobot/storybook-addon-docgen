@@ -39,9 +39,6 @@ const generateTitle = name => '`' + name + '`' + '\n===\n'
 const generateDescription = description => description + '\n'
 
 const generatePropType = type => {
-  console.log('GENERATE PROP TYPE')
-  console.log(type)
-
   if (Array.isArray(type.name)) {
     return `${type.name.map(v => v.name || v.value).join(' &#124; ')}`
   } else {
@@ -59,15 +56,6 @@ const generatePropType = type => {
 const generatePropDefaultValue = value => `\`${value.value}\``
 
 const generateProp = (propName, prop, unvisitedNodes = [], formerName) => {
-  console.log('UNVISITD NODES TOP')
-  console.log(unvisitedNodes[0])
-  console.log(unvisitedNodes.length)
-  console.log('PROPNAME TOP')
-  console.log(propName)
-  console.log('PROP TOP')
-  console.log(prop)
-  console.log('FORMER NAME TOP')
-  console.log(formerName)
   const row =
     '|' +
     [
@@ -81,14 +69,9 @@ const generateProp = (propName, prop, unvisitedNodes = [], formerName) => {
 
   const { type } = prop
 
-  console.log('UNVISITED NODES AFTER CONST ROW')
-  console.log(unvisitedNodes[0])
-  console.log('TEST')
   if (type && type.value && isObject(type.value)) {
-    console.log(' --- OBJECT FUNCTION ---')
     let keys = Object.keys(type.value)
-    console.log('KEYS')
-    console.log(keys)
+
     let names = []
     keys.forEach(key =>
       names.push(type[key].name !== undefined ? type[key].name : type[key])
@@ -99,9 +82,6 @@ const generateProp = (propName, prop, unvisitedNodes = [], formerName) => {
       (a, x, i) => [...a, `${a[i - 1] ? a[i - 1] + '/' : ''}${x}`],
       []
     )
-
-    console.log('TYPE.VALUE')
-    console.log(type.value)
 
     return (
       row +
@@ -119,67 +99,18 @@ const generateProp = (propName, prop, unvisitedNodes = [], formerName) => {
     )
     // PropTypes.oneOf and PropTypes.oneOfType are represented as an array
   } else if (Array.isArray(type.value) || Array.isArray(type.name)) {
-    // -----------------------
-
-    console.log(' ---------------- ARRAY FUNCTION ----------------')
-    console.log('FORMER NAME')
-    console.log(formerName)
-
     let newNodes = Object.create(type.value || type.name)
-    console.log('NEW NODES BEFORE FILTER')
-    console.log(newNodes)
+
     newNodes = newNodes.filter(node => node.value !== undefined) // only add nodes that have a value property (i.e further nesting)
 
     if (newNodes.length !== 0) {
-      console.log('NEW NODES after filter')
-      console.log(newNodes)
       unvisitedNodes = [...unvisitedNodes, ...newNodes]
-      console.log('UNVISITED NODES BEFORE POP')
-      console.log(unvisitedNodes[0])
-      console.log(unvisitedNodes[1])
-      console.log(unvisitedNodes.length)
 
       let currentNode = unvisitedNodes.pop()
-      console.log('UNVISITED NODES')
-      console.log(unvisitedNodes[0])
-      console.log('CURRENT NODE')
-      console.log(currentNode)
 
       if (currentNode.name != 'shape') {
         let keys = Object.keys(currentNode)
-        console.log('KEYS current')
-        console.log(keys)
 
-        // let names = []
-        // keys.forEach(key =>
-        //   names.push(type[key].name !== undefined ? type[key].name : type[key])
-        // )
-
-        // ['a', 'b', 'c'] -> ['a', 'a/b', 'a/b/c']
-        // let namesAccumulated = names.reduce(
-        //   (a, x, i) => [...a, `${a[i - 1] ? a[i - 1] + '/' : ''}${x}`],
-        //   []
-        // )
-
-        console.log('CURRENT NODE.VALUE.KEY')
-        keys.forEach(key => console.log(currentNode.value[key]))
-
-        // return (
-        //   row +
-        //   '\n' +
-        //   generateProp(
-        //     `${propName}/${currentNode.name}`,
-        //     {
-        //       type: {
-        //         name: currentNode.value.value // .name and .value
-        //       },
-        //       required:
-        //         currentNode.required !== undefined ? current.required : false //currentNode[key].required
-        //     },
-        //     unvisitedNodes
-        //   )
-        // )
-        console.log(formerName !== undefined)
         return (
           row +
           '\n' +
@@ -208,15 +139,10 @@ const generateProp = (propName, prop, unvisitedNodes = [], formerName) => {
         )
       }
     }
-    // -----------------
   }
 
   if (unvisitedNodes !== undefined && unvisitedNodes.length !== 0) {
-    console.log('***** UNVISITED NODES *****')
-
     let currentNode = unvisitedNodes.pop()
-    console.log('CURRNET NODE')
-    console.log(currentNode)
 
     return (
       row +
@@ -235,15 +161,9 @@ const generateProp = (propName, prop, unvisitedNodes = [], formerName) => {
     )
   } else {
     //END CASE
-    console.log('END CASE')
-    console.log(type)
   }
 
   return row
-}
-
-const createShape = obj => {
-  console.log(obj)
 }
 
 const generateProps = props => {

@@ -22,9 +22,9 @@ const Button = ({ children, ...rest }) => (
 
 Button.displayName = 'Button'
 
-// Button.defaultProps = {
-//   children: '🤷‍♀️'
-// }
+Button.defaultProps = {
+  children: '🤷‍♀️'
+}
 
 Button.propTypes = {
   /** The content of the button */
