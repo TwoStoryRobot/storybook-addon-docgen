@@ -55,7 +55,7 @@ const generatePropType = type => {
 
 const generatePropDefaultValue = value => `\`${value.value}\``
 
-const generateProp = (propName, prop, unvisitedNodes = [], formerName) => {
+const generateProp = (propName, prop, unvisitedNodes = []) => {
   const row =
     '|' +
     [
@@ -69,7 +69,15 @@ const generateProp = (propName, prop, unvisitedNodes = [], formerName) => {
 
   const { type } = prop
 
-  if (type && type.value && isObject(type.value)) {
+  if (type.name === 'shape') {
+    // also no need for the next few casis if this is true
+    unvisitedNodes.push(type)
+  } else if (
+    type &&
+    type.value &&
+    isObject(type.value) &&
+    type.name !== 'shape'
+  ) {
     let keys = Object.keys(type.value)
 
     let names = []
@@ -101,38 +109,38 @@ const generateProp = (propName, prop, unvisitedNodes = [], formerName) => {
   } else if (Array.isArray(type.value) || Array.isArray(type.name)) {
     let newNodes = Object.create(type.value || type.name)
 
-    newNodes = newNodes.filter(node => node.value !== undefined) // only add nodes that have a value property (i.e further nesting)
+    // only add nodes that have a value property (i.e further nesting)
+    newNodes = newNodes.filter(node => node.value !== undefined)
 
     if (newNodes.length !== 0) {
       unvisitedNodes = [...unvisitedNodes, ...newNodes]
 
-      let currentNode = unvisitedNodes.pop()
+      if (unvisitedNodes[unvisitedNodes.length - 1].name !== 'shape') {
+        let currentNode = unvisitedNodes.pop()
 
-      if (currentNode.name != 'shape') {
         let keys = Object.keys(currentNode)
 
         return (
           row +
           '\n' +
           keys
-            .map((key, index) =>
+            .map(key =>
               generateProp(
                 `${propName}/${currentNode.name}${
                   Array.isArray(currentNode.value[key])
                     ? '/' + currentNode.value.name
                     : ''
-                }`, // ${currentNode.name}
+                }`,
                 {
                   type: {
-                    name: currentNode.value[key] // .name and .value
+                    name: currentNode.value[key]
                   },
                   required:
                     currentNode.required !== undefined
-                      ? current.required
+                      ? currentNode.required
                       : false //currentNode[key].required
                 },
-                unvisitedNodes,
-                currentNode.value['name']
+                unvisitedNodes
               )
             )
             .join('\n')
@@ -144,23 +152,45 @@ const generateProp = (propName, prop, unvisitedNodes = [], formerName) => {
   if (unvisitedNodes !== undefined && unvisitedNodes.length !== 0) {
     let currentNode = unvisitedNodes.pop()
 
-    return (
-      row +
-      '\n' +
-      generateProp(
-        `${propName}`,
-        {
-          type: {
-            name: currentNode.value.name
+    if (currentNode.name !== 'shape') {
+      return (
+        row +
+        '\n' +
+        generateProp(
+          `${propName}`,
+          {
+            type: {
+              name: currentNode.value.name
+            },
+            required:
+              currentNode.required !== undefined ? current.required : false //currentNode[key].required
           },
-          required:
-            currentNode.required !== undefined ? current.required : false //currentNode[key].required
-        },
-        unvisitedNodes
+          unvisitedNodes
+        )
       )
-    )
+    } else {
+      return (
+        row +
+        '\n' +
+        generateProp(
+          `${propName}/shape`,
+          {
+            type: {
+              name: JSON.stringify(currentNode.value)
+            },
+            required:
+              currentNode.required !== undefined ? currentNode.required : false //currentNode[key].required
+          },
+          unvisitedNodes
+        )
+      )
+    }
+  } else if (type.name === 'shape') {
+    console.log('SHAPE CASE')
+    console.log(type)
   } else {
-    //END CASE
+    console.log('END CASE')
+    console.log(type)
   }
 
   return row

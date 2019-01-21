@@ -22,9 +22,9 @@ const Button = ({ children, ...rest }) => (
 
 Button.displayName = 'Button'
 
-Button.defaultProps = {
-  children: '🤷‍♀️'
-}
+// Button.defaultProps = {
+//   children: '🤷‍♀️'
+// }
 
 Button.propTypes = {
   /** The content of the button */
@@ -35,6 +35,12 @@ Button.propTypes = {
 
   quantity: PropTypes.number.isRequired,
 
+  test: PropTypes.shape({
+    abc: PropTypes.string,
+    age: PropTypes.number,
+    field: { a: PropTypes.func, b: PropTypes.number }
+  }),
+
   testArray: PropTypes.arrayOf(
     PropTypes.oneOfType([
       PropTypes.shape({
@@ -43,9 +49,38 @@ Button.propTypes = {
         age: PropTypes.number
       }),
       PropTypes.number.isRequired,
-      PropTypes.string
+      PropTypes.string,
+      PropTypes.shape({
+        abc: PropTypes.string.isRequired,
+        def: PropTypes.number,
+        ghi: PropTypes.number
+      })
     ])
   )
 }
 
 export default Button
+
+// children: PropTypes.oneOfType([
+//   PropTypes.arrayOf(PropTypes.string.isRequired),
+//   PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.bool, PropTypes.func]))
+// ])
+
+// quantity: PropTypes.shape({
+//   name: PropTypes.string,
+//   age: PropTypes.number,
+//   field: { a: PropTypes.func, b: PropTypes.number }
+// }),
+
+// //,
+// testArray: PropTypes.arrayOf(
+//   PropTypes.oneOfType([
+//     PropTypes.shape({
+//       code: PropTypes.string.isRequired,
+//       id: PropTypes.number,
+//       age: PropTypes.number
+//     }),
+//     PropTypes.number.isRequired,
+//     PropTypes.string
+//   ])
+// )
