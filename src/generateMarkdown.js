@@ -70,7 +70,7 @@ const generateProp = (propName, prop, unvisitedNodes = []) => {
   const { type } = prop
 
   if (type.name === 'shape') {
-    // also no need for the next few casis if this is true
+    // also no need for the next few cases if this is true
     unvisitedNodes.push(type)
   } else if (
     type &&
@@ -169,21 +169,43 @@ const generateProp = (propName, prop, unvisitedNodes = []) => {
         )
       )
     } else {
-      return (
-        row +
-        '\n' +
-        generateProp(
-          `${propName}/shape`,
-          {
-            type: {
-              name: JSON.stringify(currentNode.value)
-            },
-            required:
-              currentNode.required !== undefined ? currentNode.required : false //currentNode[key].required
-          },
-          unvisitedNodes
-        )
+      let keys = Object.keys(currentNode.value)
+      console.log('SHAPE KEYS')
+      console.log(keys)
+      console.log('VLAUES')
+      let values = Object.values(currentNode.value)
+      console.log(values)
+
+      keys.map((key, index) =>
+        unvisitedNodes.push({
+          type: {
+            name: key,
+            value: values[index]
+          }
+        })
       )
+
+      // let currentNode = currentNode.pop()
+
+      // return (
+      //   row +
+      //   '\n' +
+      //     generateProp(
+      //       `${propName}${
+      //         propName.substr(propName.length - 5) === 'shape' ? '' : '/shape'
+      //       }/${currentNode.name}`,
+      //       {
+      //         type: {
+      //           name: JSON.stringify(currentNode.value)
+      //         },
+      //         required:
+      //           currentNode.required !== undefined
+      //             ? currentNode.required
+      //             : false //currentNode[key].required
+      //       },
+      //       unvisitedNodes
+      //     )
+      //   )
     }
   } else if (type.name === 'shape') {
     console.log('SHAPE CASE')
