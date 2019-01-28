@@ -56,7 +56,7 @@ const generatePropType = type => {
 const generatePropDefaultValue = value => `\`${value.value}\``
 
 const generateProp = (propName, prop, unvisitedNodes = []) => {
-  const row =
+  let row =
     '|' +
     [
       '`' + propName + '`',
@@ -70,41 +70,9 @@ const generateProp = (propName, prop, unvisitedNodes = []) => {
   const { type } = prop
 
   if (type.name === 'shape') {
-    // also no need for the next few cases if this is true
     unvisitedNodes.push(type)
-  } else if (
-    type &&
-    type.value &&
-    isObject(type.value) &&
-    type.name !== 'shape'
-  ) {
-    let keys = Object.keys(type.value)
-
-    let names = []
-    keys.forEach(key =>
-      names.push(type[key].name !== undefined ? type[key].name : type[key])
-    )
-
-    // ['a', 'b', 'c'] -> ['a', 'a/b', 'a/b/c']
-    let namesAccumulated = names.reduce(
-      (a, x, i) => [...a, `${a[i - 1] ? a[i - 1] + '/' : ''}${x}`],
-      []
-    )
-
-    return (
-      row +
-      '\n' +
-      keys
-        .map((key, index) =>
-          generateProp(`${propName}/${namesAccumulated[index]}`, {
-            type: {
-              name: type.value[key]
-            },
-            required: type.value[key].required
-          })
-        )
-        .join('\n')
-    )
+  } else if (type.value && isObject(type.value) && type.name !== 'shape') {
+    row = generatePropOfTypeObject(type, row, propName, generateProp)
     // PropTypes.oneOf and PropTypes.oneOfType are represented as an array
   } else if (Array.isArray(type.value) || Array.isArray(type.name)) {
     let newNodes = Object.create(type.value || type.name)
@@ -118,32 +86,12 @@ const generateProp = (propName, prop, unvisitedNodes = []) => {
       if (unvisitedNodes[unvisitedNodes.length - 1].name !== 'shape') {
         let currentNode = unvisitedNodes.pop()
 
-        let keys = Object.keys(currentNode)
-
-        return (
-          row +
-          '\n' +
-          keys
-            .map(key =>
-              generateProp(
-                `${propName}/${currentNode.name}${
-                  Array.isArray(currentNode.value[key])
-                    ? '/' + currentNode.value.name
-                    : ''
-                }`,
-                {
-                  type: {
-                    name: currentNode.value[key]
-                  },
-                  required:
-                    currentNode.required !== undefined
-                      ? currentNode.required
-                      : false //currentNode[key].required
-                },
-                unvisitedNodes
-              )
-            )
-            .join('\n')
+        row = generatePropOfTypeArray(
+          row,
+          propName,
+          currentNode,
+          unvisitedNodes,
+          generateProp
         )
       }
     }
@@ -153,40 +101,20 @@ const generateProp = (propName, prop, unvisitedNodes = []) => {
     let currentNode = unvisitedNodes.pop()
 
     if (currentNode.name !== 'shape') {
-      return (
-        row +
-        '\n' +
-        generateProp(
-          `${propName}`,
-          {
-            type: {
-              name: currentNode.value.name
-            },
-            required:
-              currentNode.required !== undefined ? current.required : false //currentNode[key].required
-          },
-          unvisitedNodes
-        )
+      row = generatePropOfUnvisitedNode(
+        row,
+        propName,
+        currentNode,
+        unvisitedNodes,
+        generateProp
       )
     } else {
-      let keys = Object.keys(currentNode.value)
-
-      return (
-        row +
-        '\n' +
-        generateProp(
-          `${propName}${
-            propName.substr(propName.length - 5) === 'shape' ? '' : '/shape'
-          }`,
-          {
-            type: {
-              name: JSON.stringify(currentNode.value)
-            },
-            required:
-              currentNode.required !== undefined ? currentNode.required : false //currentNode[key].required
-          },
-          unvisitedNodes
-        )
+      row = generatePropOfTypeShape(
+        row,
+        propName,
+        currentNode,
+        unvisitedNodes,
+        generateProp
       )
     }
   } else if (type.name === 'shape') {
@@ -198,6 +126,120 @@ const generateProp = (propName, prop, unvisitedNodes = []) => {
   }
 
   return row
+}
+
+let generatePropOfTypeShape = (
+  row,
+  propName,
+  currentNode,
+  unvisitedNodes,
+  generateProp
+) => {
+  return (
+    row +
+    '\n' +
+    generateProp(
+      `${propName}${
+        propName.substr(propName.length - 5) === 'shape' ? '' : '/shape'
+      }`,
+      {
+        type: {
+          name: JSON.stringify(currentNode.value)
+        },
+        required:
+          currentNode.required !== undefined ? currentNode.required : false //currentNode[key].required
+      },
+      unvisitedNodes
+    )
+  )
+}
+
+let generatePropOfUnvisitedNode = (
+  row,
+  propName,
+  currentNode,
+  unvisitedNodes,
+  generateProp
+) => {
+  return (
+    row +
+    '\n' +
+    generateProp(
+      `${propName}`,
+      {
+        type: {
+          name: currentNode.value.name
+        },
+        required: currentNode.required !== undefined ? current.required : false //currentNode[key].required
+      },
+      unvisitedNodes
+    )
+  )
+}
+
+let generatePropOfTypeArray = (
+  row,
+  propName,
+  currentNode,
+  unvisitedNodes,
+  generateProp
+) => {
+  let keys = Object.keys(currentNode)
+
+  return (
+    row +
+    '\n' +
+    keys
+      .map(key =>
+        generateProp(
+          `${propName}/${currentNode.name}${
+            Array.isArray(currentNode.value[key])
+              ? '/' + currentNode.value.name
+              : ''
+          }`,
+          {
+            type: {
+              name: currentNode.value[key]
+            },
+            required:
+              currentNode.required !== undefined ? currentNode.required : false //currentNode[key].required
+          },
+          unvisitedNodes
+        )
+      )
+      .join('\n')
+  )
+}
+
+let generatePropOfTypeObject = (type, row, propName, generateProp) => {
+  //type &&
+  let keys = Object.keys(type.value)
+
+  let names = []
+  keys.forEach(key =>
+    names.push(type[key].name !== undefined ? type[key].name : type[key])
+  )
+
+  // ['a', 'b', 'c'] -> ['a', 'a/b', 'a/b/c']
+  let namesAccumulated = names.reduce(
+    (a, x, i) => [...a, `${a[i - 1] ? a[i - 1] + '/' : ''}${x}`],
+    []
+  )
+
+  return (
+    row +
+    '\n' +
+    keys
+      .map((key, index) =>
+        generateProp(`${propName}/${namesAccumulated[index]}`, {
+          type: {
+            name: type.value[key]
+          },
+          required: type.value[key].required
+        })
+      )
+      .join('\n')
+  )
 }
 
 const generateProps = props => {
