@@ -170,42 +170,24 @@ const generateProp = (propName, prop, unvisitedNodes = []) => {
       )
     } else {
       let keys = Object.keys(currentNode.value)
-      console.log('SHAPE KEYS')
-      console.log(keys)
-      console.log('VLAUES')
-      let values = Object.values(currentNode.value)
-      console.log(values)
 
-      keys.map((key, index) =>
-        unvisitedNodes.push({
-          type: {
-            name: key,
-            value: values[index]
-          }
-        })
+      return (
+        row +
+        '\n' +
+        generateProp(
+          `${propName}${
+            propName.substr(propName.length - 5) === 'shape' ? '' : '/shape'
+          }`,
+          {
+            type: {
+              name: JSON.stringify(currentNode.value)
+            },
+            required:
+              currentNode.required !== undefined ? currentNode.required : false //currentNode[key].required
+          },
+          unvisitedNodes
+        )
       )
-
-      // let currentNode = currentNode.pop()
-
-      // return (
-      //   row +
-      //   '\n' +
-      //     generateProp(
-      //       `${propName}${
-      //         propName.substr(propName.length - 5) === 'shape' ? '' : '/shape'
-      //       }/${currentNode.name}`,
-      //       {
-      //         type: {
-      //           name: JSON.stringify(currentNode.value)
-      //         },
-      //         required:
-      //           currentNode.required !== undefined
-      //             ? currentNode.required
-      //             : false //currentNode[key].required
-      //       },
-      //       unvisitedNodes
-      //     )
-      //   )
     }
   } else if (type.name === 'shape') {
     console.log('SHAPE CASE')
