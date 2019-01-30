@@ -72,11 +72,10 @@ const generateProp = (propName, prop, unvisitedNodes = []) => {
   if (type.name === 'shape') {
     unvisitedNodes.push(type)
   } else if (type.value && isObject(type.value) && type.name !== 'shape') {
-    console.log('OBJECT CASE')
     row = generatePropOfTypeObject(type, row, propName, generateProp)
+
     // PropTypes.oneOf and PropTypes.oneOfType are represented as an array
   } else if (Array.isArray(type.value) || Array.isArray(type.name)) {
-    console.log('ARRAY CASE')
     let newNodes = Object.create(type.value || type.name)
 
     // only add nodes that have a value property (i.e further nesting)
@@ -104,9 +103,6 @@ const generateProp = (propName, prop, unvisitedNodes = []) => {
       let currentNode = unvisitedNodes.pop()
 
       if (currentNode.name === 'shape') {
-        console.log('SHAPE CASE, current node')
-        console.log(currentNode)
-
         row = generatePropOfTypeShape(
           row,
           propName,
@@ -115,7 +111,6 @@ const generateProp = (propName, prop, unvisitedNodes = []) => {
           generateProp
         )
       } else {
-        console.log(' ******** generatePropOfUnvisitedNode *******')
         row = generatePropOfUnvisitedNode(
           row,
           propName,
@@ -125,8 +120,6 @@ const generateProp = (propName, prop, unvisitedNodes = []) => {
         )
       }
     }
-  } else if (type.name === 'shape') {
-  } else {
   }
 
   return row
@@ -139,16 +132,8 @@ let generatePropOfTypeShape = (
   unvisitedNodes,
   generateProp
 ) => {
-  console.log('*-*-*-*-* current node *-*-*-*-*')
-  console.log(currentNode)
-
   let keys = Object.keys(currentNode.value)
   let values = Object.values(currentNode.value)
-  console.log(keys)
-  console.log(values)
-
-  console.log('--------- Prop Name ---------')
-  console.log(propName)
 
   return (
     row +
@@ -158,31 +143,16 @@ let generatePropOfTypeShape = (
         generatePropOfUnvisitedNode(
           row,
           `${propName}/shape/${key}`,
-          { name: key, value: { name: values[i].name } },
+          {
+            name: key,
+            value: { name: values[i].name, required: values[i].required }
+          },
           unvisitedNodes,
           generateProp
         )
       )
       .join('\n')
   )
-
-  // return (
-  //   row +
-  //   '\n' +
-  //   generateProp(
-  //     `${propName}${
-  //       propName.substr(propName.length - 5) === 'shape' ? '' : '/shape'
-  //     }`,
-  //     {
-  //       type: {
-  //         name: JSON.stringify(currentNode.value)
-  //       },
-  //       required:
-  //         currentNode.required !== undefined ? currentNode.required : false //currentNode[key].required
-  //     },
-  //     unvisitedNodes
-  //   )
-  // )
 }
 
 let generatePropOfUnvisitedNode = (
@@ -192,17 +162,18 @@ let generatePropOfUnvisitedNode = (
   unvisitedNodes,
   generateProp
 ) => {
-  console.log(' OOOOO GENERATE UNVISITED NODE OOOOO ')
-  console.log(currentNode)
   return generateProp(
     `${propName}`,
     {
       type: {
         name: currentNode.value.name
       },
-      required: currentNode.required !== undefined ? current.required : false //currentNode[key].required
+      required:
+        currentNode.value.required !== undefined
+          ? currentNode.value.required
+          : false
     },
-    [] //unvisitedNodes
+    []
   )
 }
 
@@ -213,9 +184,6 @@ let generatePropOfTypeArray = (
   unvisitedNodes,
   generateProp
 ) => {
-  console.log('<><><><><><> ARRAY <><><><><><>')
-  console.log(currentNode)
-
   let keys = Object.keys(currentNode)
 
   return (
@@ -234,7 +202,9 @@ let generatePropOfTypeArray = (
               name: currentNode.value[key]
             },
             required:
-              currentNode.required !== undefined ? currentNode.required : false //currentNode[key].required
+              currentNode[key].required !== undefined
+                ? currentNode.required
+                : false
           },
           unvisitedNodes
         )
@@ -244,9 +214,6 @@ let generatePropOfTypeArray = (
 }
 
 let generatePropOfTypeObject = (type, row, propName, generateProp) => {
-  //type &&
-  console.log('###### OBJECT ####')
-  console.log(type)
   let keys = Object.keys(type.value)
 
   let names = []
