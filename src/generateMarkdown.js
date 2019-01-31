@@ -40,7 +40,7 @@ const generateDescription = description => description + '\n'
 
 const generatePropType = type => {
   if (Array.isArray(type.name)) {
-    return `${type.name.map(v => v.name || v.value).join(' &#124; ')}`
+    return `${type.name.map(v => v.name || v.value).join(' &#124; ')}` //  &#124; = |
   } else {
     return (
       type.name +
