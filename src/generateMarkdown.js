@@ -47,7 +47,7 @@ const generatePropType = type => {
       (type.value && type.name !== 'shape'
         ? Array.isArray(type.value)
           ? `(${type.value.map(v => v.name || v.value).join(' &#124; ')})`
-          : ' ' //+ type.value.name || type.value // type.value might not be necessary
+          : ' '
         : '')
     )
   }
