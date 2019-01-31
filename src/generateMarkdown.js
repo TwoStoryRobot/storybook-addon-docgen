@@ -72,7 +72,6 @@ const generateProp = (propName, prop, unvisitedNodes = []) => {
   if (type.name === 'shape') {
     unvisitedNodes.push(type)
   } else if (type.value && isObject(type.value) && type.name !== 'shape') {
-    console.log('OBJECT')
     row = generatePropOfTypeObject(type, row, propName, generateProp)
 
     // PropTypes.oneOf and PropTypes.oneOfType are represented as an array
@@ -100,12 +99,9 @@ const generateProp = (propName, prop, unvisitedNodes = []) => {
   }
 
   if (unvisitedNodes !== undefined && unvisitedNodes.length !== 0) {
-    console.log('UNVISITED')
     while (unvisitedNodes.length !== 0) {
       let currentNode = unvisitedNodes.pop()
       // AN ARRAY! NEED CASE TO GENERATE ARRAY FROM UNVISITED
-
-      console.log(currentNode)
 
       if (currentNode.name === 'shape') {
         row = generatePropOfTypeShape(
@@ -117,9 +113,6 @@ const generateProp = (propName, prop, unvisitedNodes = []) => {
         )
       } else if (Array.isArray(currentNode.value)) {
         let values = Object.values(currentNode.value)
-
-        console.log('VALUES')
-        console.log(values)
 
         row += '\n'
 
@@ -139,12 +132,7 @@ const generateProp = (propName, prop, unvisitedNodes = []) => {
         )
 
         row = row.substring(0, row.length - 1) // remove last line break
-
-        console.log('______ROW______')
-        console.log(typeof row)
       } else {
-        console.log('GENERATE UNVISITED')
-        console.log(currentNode)
         row = generatePropOfUnvisitedNode(
           row,
           propName,
@@ -218,17 +206,11 @@ let generatePropOfTypeArray = (
   unvisitedNodes,
   generateProp
 ) => {
-  //let keys = Object.keys(currentNode)
   let keys = ['name']
 
   if (currentNode.value.value !== undefined) {
     keys.push('value')
   }
-
-  console.log(keys)
-
-  console.log('ARRAY')
-  console.log(currentNode)
 
   return (
     row +
@@ -300,7 +282,6 @@ const generateProps = props => {
 }
 
 const generateMarkdown = reactAPI => {
-  console.log(reactAPI.props)
   return [
     (generateTitle(reactAPI.displayName),
     generateDescription(reactAPI.description),
