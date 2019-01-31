@@ -78,7 +78,7 @@ const generateProp = (propName, prop, unvisitedNodes = []) => {
   } else if (Array.isArray(type.value) || Array.isArray(type.name)) {
     let newNodes = Object.create(type.value || type.name)
 
-    // only add nodes that have a value property (i.e further nesting)
+    // Only add nodes that have a value property (i.e further nesting)
     newNodes = newNodes.filter(node => node.value !== undefined)
 
     if (newNodes.length !== 0) {
