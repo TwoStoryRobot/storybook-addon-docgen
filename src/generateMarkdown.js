@@ -48,48 +48,138 @@ const generatePropType = type =>
 
 const generatePropDefaultValue = value => `\`${value.value}\``
 
-const generateProp = (propName, prop) => {
-  const row = [
-    '`' + propName + '`',
-    prop.type ? generatePropType(prop.type) : '',
-    prop.required ? 'yes' : 'no',
-    prop.defaultValue ? generatePropDefaultValue(prop.defaultValue) : '',
-    prop.description ? prop.description : ''
-  ].join('|')
+const generateRootNodes = props => {
+  let keys = Object.keys(props)
+  let rootNodes = []
+  keys.map(prop =>
+    rootNodes.push({
+      name: `${prop}`,
+      value: props[prop].type || '',
+      required: props[prop].required,
+      defaultValue: props[prop].defaultValue,
+      description: props[prop].description
+    })
+  )
 
-  const { type } = prop
+  return rootNodes
+}
 
-  if (type && type.value && isObject(type.value)) {
-    return (
-      row +
-      '\n' +
-      Object.keys(type.value)
-        .sort()
-        .map(name =>
-          generateProp(`${propName}/${name}`, {
-            type: {
-              name: type.value[name].name
-            },
-            required: type.value[name].required
+const breadthFristSearch = rootNode => {
+  // Check that a root node exists.
+  if (rootNode === null) {
+    return
+  }
+
+  // Create our queue and push our root node into it.
+  let queue = []
+  let row = ''
+
+  rootNode.accumulatedName = rootNode.name
+  queue.push(rootNode)
+
+  // Continue searching through as queue as long as it's not empty.
+  while (queue.length > 0) {
+    // Create a reference to currentNode, at the top of the queue.
+    let currentNode = queue[0]
+    let printValue = []
+
+    if (currentNode !== undefined && currentNode['value']) {
+      switch (currentNode.value.name) {
+        case 'union':
+          currentNode.value.name = 'oneOfType'
+          break
+        case 'enum':
+          currentNode.value.name = 'oneOf'
+          break
+      }
+    }
+
+    // Push all adjacent nodes to the queue.
+    if (currentNode.name === 'shape') {
+      let keys = Object.keys(currentNode.value)
+      keys.map(key => {
+        key !== 'accumulatedName'
+          ? queue.push({
+              accumulatedName: `${currentNode.accumulatedName}/${key}`,
+              name: key,
+              value:
+                currentNode.value[key].raw !== undefined
+                  ? currentNode.value[key].raw
+                  : currentNode.value[key],
+              required: currentNode.value[key].required
+            })
+          : ''
+        printValue.push(`${key}`)
+      })
+    } else if (currentNode.name === 'oneOf') {
+      let nodes = currentNode.value
+      nodes.map((node, index) => {
+        queue.push({
+          accumulatedName: `${currentNode.accumulatedName}/${index}`,
+          name: index,
+          value: node.value,
+          required: false
+        })
+        printValue.push(`${index}`)
+      })
+    } else {
+      let adjacentNode = currentNode.value
+
+      if (adjacentNode !== undefined) {
+        // oneOfType is represented as an array
+        if (Array.isArray(adjacentNode)) {
+          adjacentNode.map(node => {
+            let accumulatedName = `${currentNode.accumulatedName}/${node.name}`
+            node.accumulatedName = accumulatedName
+            queue.push(node)
+            printValue.push(`${node.name}`)
           })
-        )
-        .join('\n')
-    )
+        } else if (isObject(adjacentNode)) {
+          let accumulatedName = `${currentNode.accumulatedName}/${
+            adjacentNode.name
+          }`
+          adjacentNode.accumulatedName = accumulatedName
+          queue.push(adjacentNode)
+          printValue.push(adjacentNode.name)
+        }
+      }
+    }
+
+    // Do stuff with the Current Node
+    if (currentNode.value !== undefined) {
+      // remove this to print leaf nodes in union/ enum as new line
+      printValue.length === 0 ? printValue.push(currentNode.value) : ''
+      row +=
+        [
+          '`' + currentNode.accumulatedName + '`',
+          printValue.join(', '),
+          currentNode.required ? 'yes' : 'no',
+          currentNode.defaultValue
+            ? generatePropDefaultValue(currentNode.defaultValue)
+            : '',
+          currentNode.description ? currentNode.description : '|'
+        ].join('|') + '\n'
+    }
+
+    // Remove the currentNode from the queue.
+    queue.shift()
   }
 
   return row
 }
 
+const generateTable = props => {
+  let table = ''
+  let rootNodes = generateRootNodes(props)
+  rootNodes.forEach(rootNode => (table += breadthFristSearch(rootNode)))
+
+  return table
+}
+
 const generateProps = props => {
   const title =
     '|name|type|required|default|description|\n|---|---|---|---|---|\n'
-  return props
-    ? title +
-        Object.keys(props)
-          .sort()
-          .map(name => generateProp(name, props[name]))
-          .join('\n')
-    : title
+  return props ? title + generateTable(props) : title
 }
 
 const generateMarkdown = reactAPI =>
